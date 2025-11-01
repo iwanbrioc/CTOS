@@ -5,10 +5,12 @@ const config: CapacitorConfig = {
   appName: 'Coming to Our Senses',
   webDir: 'dist/public',
   server: {
+    url: 'https://workspace.iwanbrioc.repl.co',
+    cleartext: true,
     androidScheme: 'https'
   },
   ios: {
-    contentInset: 'automatic',
+    contentInset: 'never',
     backgroundColor: '#f8f9fa'
   },
   plugins: {
