@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Coming to Our Senses',
   webDir: 'dist/public',
   server: {
-    url: 'https://workspace.iwanbrioc.repl.co',
+    url: 'https://d6530157-faac-4ef2-88a6-b67b5d88e1bd-00-127quj4s0j5cu.worf.replit.dev',
     cleartext: true,
     androidScheme: 'https'
   },
