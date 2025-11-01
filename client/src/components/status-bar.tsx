@@ -1,6 +1,21 @@
-import { } from "react";
+import { useEffect, useState } from "react";
 
 export function StatusBar() {
+  const [isNative, setIsNative] = useState(false);
+  
+  useEffect(() => {
+    // Hide status bar on native iOS/Android (Capacitor)
+    const isCapacitor = window.matchMedia('(display-mode: standalone)').matches || 
+                        (window.navigator as any).standalone === true ||
+                        document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1;
+    setIsNative(isCapacitor);
+  }, []);
+
+  // Don't show custom status bar on native apps (iOS already has one)
+  if (isNative) {
+    return null;
+  }
+
   const now = new Date();
   const timeString = now.toLocaleTimeString('en-US', { 
     hour: 'numeric', 
