@@ -609,6 +609,7 @@ var init_session_data = __esm({
 
 // server/index.ts
 import express2 from "express";
+import cors from "cors";
 
 // server/routes.ts
 import { createServer } from "http";
@@ -1579,6 +1580,7 @@ function serveStatic(app2) {
 
 // server/index.ts
 var app = express2();
+app.use(cors());
 app.use(express2.json({ limit: "50mb" }));
 app.use(express2.urlencoded({ extended: false, limit: "50mb" }));
 app.use("/attached_assets", express2.static("attached_assets"));

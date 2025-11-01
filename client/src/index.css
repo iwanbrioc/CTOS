@@ -66,6 +66,11 @@
   * {
     @apply border-border;
   }
+  
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
 
   body {
     @apply font-sans antialiased text-foreground bg-background;
@@ -73,6 +78,22 @@
     font-weight: 400;
     line-height: 1.5;
     min-height: 100vh;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+  
+  /* Enable momentum scrolling on iOS */
+  #root {
+    height: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Fix for all scrollable containers on iOS */
+  [class*="overflow-y-auto"],
+  [class*="overflow-auto"] {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
   }
   
   h1, h2, h3, h4, h5, h6 {
