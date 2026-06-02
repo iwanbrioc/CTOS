@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { StatusBar } from "@/components/status-bar";
 import { BottomNavigation } from "@/components/bottom-navigation";
@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, User, Calendar, Award, Bell, Settings, Calendar as CalendarIcon, RotateCcw } from "lucide-react";
+import { ArrowLeft, User, Camera, Award, Bell, Settings, Calendar as CalendarIcon, RotateCcw } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getUserName, setUserName, clearUserPrefs } from "@/lib/user-prefs";
@@ -47,6 +47,22 @@ export default function Profile() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [courseFormat, setCourseFormat] = useState<string>(user?.courseFormat || "8-week");
+  const [profilePic, setProfilePic] = useState<string | null>(() =>
+    localStorage.getItem('ctos-profile-pic')
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      localStorage.setItem('ctos-profile-pic', dataUrl);
+      setProfilePic(dataUrl);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleReset = () => {
     clearUserPrefs();
@@ -104,9 +120,33 @@ export default function Profile() {
         <div className="mb-6 rounded-3xl shadow-xl overflow-hidden bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-600">
           <div className="px-6 pt-6 pb-5">
             <div className="flex items-center gap-4 mb-5">
-              <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center ring-4 ring-white/30 shadow-inner shrink-0">
-                <User className="h-10 w-10 text-white" />
+              {/* Tappable avatar */}
+              <div
+                className="relative shrink-0 cursor-pointer"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {profilePic ? (
+                  <img
+                    src={profilePic}
+                    alt="Profile"
+                    className="w-20 h-20 rounded-full object-cover ring-4 ring-white/30 shadow-inner"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center ring-4 ring-white/30 shadow-inner">
+                    <User className="h-10 w-10 text-white" />
+                  </div>
+                )}
+                <div className="absolute bottom-0 right-0 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-md">
+                  <Camera className="h-3.5 w-3.5 text-indigo-600" />
+                </div>
               </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleProfilePicChange}
+              />
               <div className="min-w-0">
                 <h2 className="text-2xl font-bold text-white leading-tight truncate">
                   {getUserName() || "Explorer"}
@@ -137,39 +177,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Travelling Lighter Community */}
-        <a
-          href="https://comingtooursenses.org/travelling-lighter"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block mb-6"
-        >
-          <Card className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
-            <CardContent className="p-0">
-              <div className="flex items-center gap-4 px-5 py-4 bg-gradient-to-br from-stone-50 to-gray-100">
-                <img
-                  src="/attached_assets/travellinglighter.jpg"
-                  alt="Travelling Lighter"
-                  className="w-20 h-20 object-contain shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-0.5">
-                    Community of Practice
-                  </p>
-                  <h3 className="text-base font-semibold text-gray-800 leading-tight">
-                    A Travelling Lighter
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1 leading-snug">
-                    Join a growing community exploring mindfulness in everyday life.
-                  </p>
-                  <span className="inline-block mt-2 text-xs font-semibold text-blue-600">
-                    Subscribe →
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </a>
 
         {/* Tabbed Content */}
         <Tabs defaultValue="progress" className="w-full">
@@ -311,6 +318,39 @@ export default function Profile() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Travelling Lighter Community */}
+        <a
+          href="https://comingtooursenses.org/travelling-lighter"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block mt-6"
+        >
+          <div className="relative rounded-3xl shadow-xl overflow-hidden bg-gradient-to-br from-violet-400 via-blue-600 to-teal-400 active:scale-[0.98] transition-transform">
+            {/* blended illustration */}
+            <img
+              src="/attached_assets/travellinglighterfigure.png"
+              alt=""
+              aria-hidden="true"
+              className="absolute top-0 right-0 h-full w-auto object-cover opacity-20 mix-blend-multiply pointer-events-none"
+            />
+            <div className="relative z-10 px-6 py-7">
+              <p className="text-white/70 text-xs font-semibold tracking-widest uppercase mb-2">
+                Community of Practice
+              </p>
+              <h3 className="text-2xl font-bold text-white leading-tight mb-2">
+                Travel lighter<br />through life
+              </h3>
+              <p className="text-white/80 text-sm leading-relaxed mb-5 max-w-[220px]">
+                An ongoing membership for people who want to keep deepening their practice — together, at their own pace.
+              </p>
+              <div className="inline-flex items-center gap-2 bg-white rounded-2xl px-5 py-2.5 shadow-md">
+                <span className="text-violet-700 font-semibold text-sm">Subscribe</span>
+                <span className="text-violet-500">→</span>
+              </div>
+            </div>
+          </div>
+        </a>
       </main>
 
       <BottomNavigation />
