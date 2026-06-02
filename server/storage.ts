@@ -43,7 +43,7 @@ export interface IStorage {
   // User Progress
   getUserProgress(userId: string): Promise<UserProgress[]>;
   updateSessionProgress(userId: string, sessionId: number, progress: Partial<UserProgress>): Promise<void>;
-  completeSession(userId: string, sessionId: number): Promise<void>;
+  completeSession(userId: string, sessionId: number, preMood?: number, postMood?: number): Promise<void>;
 
   // Journal
   getUserJournalEntries(userId: string): Promise<JournalEntry[]>;
@@ -195,11 +195,17 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(userProgress.userId, userId), eq(userProgress.sessionId, sessionId)));
   }
 
-  async completeSession(userId: string, sessionId: number): Promise<void> {
+  async completeSession(userId: string, sessionId: number, preMood?: number, postMood?: number): Promise<void> {
     const { db } = await import("./db");
     const { eq, and } = await import("drizzle-orm");
+    const updateData: Partial<typeof userProgress.$inferInsert> = {
+      completed: true,
+      completedAt: new Date(),
+    };
+    if (preMood !== undefined) updateData.preMood = preMood;
+    if (postMood !== undefined) updateData.postMood = postMood;
     await db.update(userProgress)
-      .set({ completed: true, completedAt: new Date() })
+      .set(updateData)
       .where(and(eq(userProgress.userId, userId), eq(userProgress.sessionId, sessionId)));
   }
 
@@ -732,56 +738,68 @@ export class MemStorage implements IStorage {
       {
         week: 1,
         title: "Dropping the Balloon",
-        description: "Letting go of mental burdens and finding lightness",
+        practiceName: "Grounding",
+        description: "Learning to let go and recognize when we're in 'keepy-uppy' mode.",
         audioUrl: "/attached_assets/Grounding 10min_1751647354223.mp3",
         duration: 10,
         illustration: "dropping-balloon",
         isLocked: false,
+        handyHack: "Drop the Balloon (whenever you notice the twitch)",
       },
       {
         week: 2,
-        title: "Seven Stations of the Spine",
-        description: "Foundation practice for grounding and spinal awareness",
+        title: "Journey to Now",
+        practiceName: "Seven Stations of the Spine",
+        description: "The body as a reliable anchor to the present moment.",
         audioUrl: "/attached_assets/The Seven Stations of the Spine_1751648246548.mp3",
         duration: 20,
         illustration: "seven-stations-spine",
         isLocked: false,
+        handyHack: "Unclench and Breathe",
       },
       {
         week: 3,
-        title: "The Sense of Being Alive",
-        description: "Awakening to the fundamental aliveness within",
+        title: "Coming to Our Senses",
+        practiceName: "The Sense of Being Alive",
+        description: "What if thoughts and emotions were also considered senses?",
         audioUrl: "/attached_assets/The Sense of Being Alive (20 minutes)_1751649276591.mp3",
         duration: 20,
         illustration: "the-sense-being-alive",
         isLocked: false,
+        handyHack: "The Three Precious Pills (stillness, silence, spaciousness)",
       },
       {
         week: 4,
-        title: "Mind in Body, Body in Movement, Movement in Mind",
-        description: "Integrating physical awareness with mental presence",
+        title: "Body, Movement, Mind",
+        practiceName: "Mind in Body, Body in Movement, Movement in Mind",
+        description: "Meditation doesn't have to mean stillness.",
         audioUrl: "/attached_assets/Mind in Body, Body in Movement, Movement n Mind (10min)_1751649693383.mp3",
         duration: 10,
         illustration: "mind-body-movement",
         isLocked: false,
+        handyHack: "Exploring Opening and Closing",
       },
       {
         week: 5,
-        title: "What if All There is Is This?",
-        description: "Exploring presence and acceptance of the current moment",
+        title: "What You Really Want",
+        practiceName: "What if All There is is This?",
+        description: "Exploring what happens when we fully accept the present moment.",
         audioUrl: "/attached_assets/What if all there is is this 10 minute version_1751649984256.mp3",
         duration: 10,
         illustration: "what-if-all-there-is",
         isLocked: false,
+        handyHack: "Watch the Want",
       },
       {
         week: 6,
-        title: "Turning Towards Discomfort",
-        description: "Learning to face difficulty with awareness",
+        title: "Leaning into Difficulty",
+        practiceName: "Turning Towards the Difficult",
+        description: "Understanding emotions as signals and finding the gold in our wounds.",
         audioUrl: "/attached_assets/turning towards the difficult 15 Minutes_1751650302023.mp3",
         duration: 15,
         illustration: "turning-towards-discomfort",
         isLocked: false,
+        handyHack: "The 5 Elements (anger, sadness, joy, disgust, fear)",
       },
       {
         week: 6,
@@ -794,21 +812,26 @@ export class MemStorage implements IStorage {
       },
       {
         week: 7,
-        title: "The Four Pillars of Wellbeing",
-        description: "Building sustainable foundations for mindful living",
+        title: "The Perfect Distance",
+        practiceName: "The Four Pillars",
+        description: "When distance collapses, there is simply what is happening — and true response-ability becomes possible.",
         audioUrl: "/attached_assets/fourpillarspractice_1751651309349.mp3",
         duration: 22,
-        illustration: "four-pillars",
+        illustration: "journaling-flow",
         isLocked: false,
+        handyHack: "Presence - Set Frame - Release",
+        journaling: "Full Flow Journal System (Gratitude, High Flow & High Value Priorities, Script Your Day, Review Your Day)",
       },
       {
         week: 8,
-        title: "Great Smile Practice",
-        description: "Cultivating joy and positive energy through mindful smiling",
-        audioUrl: "https://soundcloud.com/undoing-agency/great-smile-practice",
+        title: "Falling Awake",
+        practiceName: "Great Smile Practice",
+        description: "Embracing the paradox of awakening and falling in love with what is.",
+        audioUrl: "/attached_assets/great smile practice_1751652000000.mp3",
         duration: 16,
         illustration: "great-smile",
         isLocked: false,
+        handyHack: "Great Smile",
       },
     ];
 
@@ -848,13 +871,15 @@ export class MemStorage implements IStorage {
     }
   }
 
-  async completeSession(userId: number, sessionId: number): Promise<void> {
+  async completeSession(userId: string, sessionId: number, preMood?: number, postMood?: number): Promise<void> {
     const key = `${userId}-${sessionId}`;
     const existing = this.userProgress.get(key);
-    
+
     if (existing) {
       existing.completed = true;
       existing.completedAt = new Date();
+      if (preMood !== undefined) (existing as any).preMood = preMood;
+      if (postMood !== undefined) (existing as any).postMood = postMood;
       this.userProgress.set(key, existing);
     } else {
       const id = this.currentId++;
@@ -867,7 +892,9 @@ export class MemStorage implements IStorage {
         audioProgress: 0,
         totalListenTime: 0,
         streakDays: 0,
-      };
+        preMood: preMood ?? null,
+        postMood: postMood ?? null,
+      } as any;
       this.userProgress.set(key, newProgress);
     }
   }
@@ -1291,4 +1318,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+export const storage = process.env.DATABASE_URL ? new DatabaseStorage() : new MemStorage();

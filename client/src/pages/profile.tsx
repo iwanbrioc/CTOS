@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, User, Calendar, Award, Bell, Settings, Calendar as CalendarIcon } from "lucide-react";
 import { Link } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { getUserName, setUserName } from "@/lib/user-prefs";
 import { useToast } from "@/hooks/use-toast";
 import type { User as UserType, UserProgress, UserHackCompletion } from "@shared/schema";
 
@@ -101,21 +102,55 @@ export default function Profile() {
               </div>
               <div className="flex-1">
                 <h2 className="text-xl font-semibold text-primary">
-                  {user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : "Mindful Practitioner"}
+                  {getUserName() ? `${getUserName()}'s Journey` : "My Journey"}
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  {user?.email || "user@example.com"}
+                  Coming to Our Senses
                 </p>
                 <div className="flex items-center space-x-2 mt-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">
-                    Joined {joinedDaysAgo} days ago
+                    Week {user?.currentWeek || 1} of 8
                   </span>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Travelling Lighter Community */}
+        <a
+          href="https://comingtooursenses.org/travelling-lighter"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block mb-6"
+        >
+          <Card className="overflow-hidden border border-gray-200 hover:shadow-md transition-shadow">
+            <CardContent className="p-0">
+              <div className="flex items-center gap-4 px-5 py-4 bg-gradient-to-br from-stone-50 to-gray-100">
+                <img
+                  src="/attached_assets/travellinglighter.jpg"
+                  alt="Travelling Lighter"
+                  className="w-20 h-20 object-contain shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-400 mb-0.5">
+                    Community of Practice
+                  </p>
+                  <h3 className="text-base font-semibold text-gray-800 leading-tight">
+                    A Travelling Lighter
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1 leading-snug">
+                    Join a growing community exploring mindfulness in everyday life.
+                  </p>
+                  <span className="inline-block mt-2 text-xs font-semibold text-blue-600">
+                    Subscribe →
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </a>
 
         {/* Tabbed Content */}
         <Tabs defaultValue="progress" className="w-full">
@@ -191,7 +226,7 @@ export default function Profile() {
                   Course Format
                 </CardTitle>
                 <CardDescription>
-                  Choose between an 8-week or 4-week course format
+                  Three delivery models — each offers a complete experience in its own way
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -200,10 +235,10 @@ export default function Profile() {
                     <RadioGroupItem value="8-week" id="8-week" />
                     <div className="flex-1">
                       <Label htmlFor="8-week" className="font-semibold cursor-pointer">
-                        8-Week Course (Recommended)
+                        8-Week Course
                       </Label>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Complete one session per week for a gentle, thorough exploration
+                        One session per week — space to integrate and practice between sessions
                       </p>
                     </div>
                   </div>
@@ -211,10 +246,21 @@ export default function Profile() {
                     <RadioGroupItem value="4-week" id="4-week" />
                     <div className="flex-1">
                       <Label htmlFor="4-week" className="font-semibold cursor-pointer">
-                        4-Week Intensive Course
+                        4-Week Course
                       </Label>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Complete two sessions per week for a more focused experience
+                        Two sessions per week — a concentrated journey over a shorter period
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50 cursor-pointer">
+                    <RadioGroupItem value="3-day" id="3-day" />
+                    <div className="flex-1">
+                      <Label htmlFor="3-day" className="font-semibold cursor-pointer">
+                        3-Day Intensive
+                      </Label>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        All sessions across three full days — immersive and transformative
                       </p>
                     </div>
                   </div>
@@ -229,7 +275,7 @@ export default function Profile() {
 
             {/* Notification Settings */}
             <NotificationSettings userId={DEMO_USER_ID} />
-            
+
             {/* Notification Test Center */}
             <NotificationTest />
           </TabsContent>
