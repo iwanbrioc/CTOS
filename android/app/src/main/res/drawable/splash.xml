@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- CTOS blue gradient background colour (matches iOS splash) -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:startColor="#4a90d9"
+                android:endColor="#b8d4e8"
+                android:type="linear" />
+        </shape>
+    </item>
+    <!-- Centred emblem, not stretched -->
+    <item>
+        <bitmap
+            android:src="@drawable/splash_icon"
+            android:gravity="center" />
+    </item>
+</layer-list>
