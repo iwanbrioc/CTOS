@@ -102,8 +102,12 @@ var init_schema = __esm({
       // times user skipped forward
       pauseCount: integer("pause_count").default(0),
       // times user paused
-      averageSessionRating: integer("average_session_rating").default(0)
+      averageSessionRating: integer("average_session_rating").default(0),
       // 1-5 rating
+      preMood: integer("pre_mood"),
+      // 1-5 mood rating before practice
+      postMood: integer("post_mood")
+      // 1-5 mood rating after practice
     });
     milestones = pgTable("milestones", {
       id: serial("id").primaryKey(),
@@ -690,10 +694,16 @@ var DatabaseStorage = class {
     const { eq: eq2, and } = await import("drizzle-orm");
     await db3.update(userProgress).set(progress).where(and(eq2(userProgress.userId, userId), eq2(userProgress.sessionId, sessionId)));
   }
-  async completeSession(userId, sessionId) {
+  async completeSession(userId, sessionId, preMood, postMood) {
     const { db: db3 } = await Promise.resolve().then(() => (init_db(), db_exports));
     const { eq: eq2, and } = await import("drizzle-orm");
-    await db3.update(userProgress).set({ completed: true, completedAt: /* @__PURE__ */ new Date() }).where(and(eq2(userProgress.userId, userId), eq2(userProgress.sessionId, sessionId)));
+    const updateData = {
+      completed: true,
+      completedAt: /* @__PURE__ */ new Date()
+    };
+    if (preMood !== void 0) updateData.preMood = preMood;
+    if (postMood !== void 0) updateData.postMood = postMood;
+    await db3.update(userProgress).set(updateData).where(and(eq2(userProgress.userId, userId), eq2(userProgress.sessionId, sessionId)));
   }
   async getUserJournalEntries(userId) {
     const { db: db3 } = await Promise.resolve().then(() => (init_db(), db_exports));
@@ -977,7 +987,614 @@ var DatabaseStorage = class {
     };
   }
 };
-var storage = new DatabaseStorage();
+var MemStorage = class {
+  users;
+  sessions;
+  userProgress;
+  journalEntries;
+  handyHacks;
+  userHackCompletions;
+  notifications;
+  milestones;
+  userMilestones;
+  currentId;
+  constructor() {
+    this.users = /* @__PURE__ */ new Map();
+    this.sessions = /* @__PURE__ */ new Map();
+    this.userProgress = /* @__PURE__ */ new Map();
+    this.journalEntries = /* @__PURE__ */ new Map();
+    this.handyHacks = /* @__PURE__ */ new Map();
+    this.userHackCompletions = /* @__PURE__ */ new Map();
+    this.notifications = /* @__PURE__ */ new Map();
+    this.milestones = /* @__PURE__ */ new Map();
+    this.userMilestones = /* @__PURE__ */ new Map();
+    this.currentId = 1;
+    this.initializeSessions();
+    this.initializeHandyHacks();
+    this.initializeMilestones();
+  }
+  async getUser(id) {
+    return this.users.get(id);
+  }
+  async getUserByEmail(email) {
+    return Array.from(this.users.values()).find((user) => user.email === email);
+  }
+  async createUser(insertUser) {
+    const id = this.currentId++;
+    const user = {
+      ...insertUser,
+      id,
+      currentWeek: 1,
+      joinedAt: /* @__PURE__ */ new Date(),
+      notificationsEnabled: true,
+      reminderTime: "09:00",
+      reminderDays: [1, 2, 3, 4, 5],
+      timezone: "UTC"
+    };
+    this.users.set(id, user);
+    return user;
+  }
+  async updateUserWeek(userId, week) {
+    const user = this.users.get(userId);
+    if (user) {
+      user.currentWeek = week;
+      this.users.set(userId, user);
+    }
+  }
+  async updateUserSessionsPace(userId, sessionsPace) {
+    const numericUserId = parseInt(userId);
+    const user = this.users.get(numericUserId);
+    if (user) {
+      user.sessionsPace = sessionsPace;
+      this.users.set(numericUserId, user);
+    }
+  }
+  async updateUserCourseFormat(userId, courseFormat) {
+    const numericUserId = parseInt(userId);
+    const user = this.users.get(numericUserId);
+    if (user) {
+      user.courseFormat = courseFormat;
+      this.users.set(numericUserId, user);
+    }
+  }
+  async getAllSessions() {
+    return Array.from(this.sessions.values());
+  }
+  async getSessionsByWeek(week) {
+    return Array.from(this.sessions.values()).filter((session) => session.week === week);
+  }
+  async initializeSessions() {
+    const sessionData2 = [
+      {
+        week: 1,
+        title: "Dropping the Balloon",
+        practiceName: "Grounding",
+        description: "Learning to let go and recognize when we're in 'keepy-uppy' mode.",
+        audioUrl: "/attached_assets/Grounding 10min_1751647354223.mp3",
+        duration: 10,
+        illustration: "dropping-balloon",
+        isLocked: false,
+        handyHack: "Drop the Balloon (whenever you notice the twitch)"
+      },
+      {
+        week: 2,
+        title: "Journey to Now",
+        practiceName: "Seven Stations of the Spine",
+        description: "The body as a reliable anchor to the present moment.",
+        audioUrl: "/attached_assets/The Seven Stations of the Spine_1751648246548.mp3",
+        duration: 20,
+        illustration: "seven-stations-spine",
+        isLocked: false,
+        handyHack: "Unclench and Breathe"
+      },
+      {
+        week: 3,
+        title: "Coming to Our Senses",
+        practiceName: "The Sense of Being Alive",
+        description: "What if thoughts and emotions were also considered senses?",
+        audioUrl: "/attached_assets/The Sense of Being Alive (20 minutes)_1751649276591.mp3",
+        duration: 20,
+        illustration: "the-sense-being-alive",
+        isLocked: false,
+        handyHack: "The Three Precious Pills (stillness, silence, spaciousness)"
+      },
+      {
+        week: 4,
+        title: "Body, Movement, Mind",
+        practiceName: "Mind in Body, Body in Movement, Movement in Mind",
+        description: "Meditation doesn't have to mean stillness.",
+        audioUrl: "/attached_assets/Mind in Body, Body in Movement, Movement n Mind (10min)_1751649693383.mp3",
+        duration: 10,
+        illustration: "mind-body-movement",
+        isLocked: false,
+        handyHack: "Exploring Opening and Closing"
+      },
+      {
+        week: 5,
+        title: "What You Really Want",
+        practiceName: "What if All There is is This?",
+        description: "Exploring what happens when we fully accept the present moment.",
+        audioUrl: "/attached_assets/What if all there is is this 10 minute version_1751649984256.mp3",
+        duration: 10,
+        illustration: "what-if-all-there-is",
+        isLocked: false,
+        handyHack: "Watch the Want"
+      },
+      {
+        week: 6,
+        title: "Leaning into Difficulty",
+        practiceName: "Turning Towards the Difficult",
+        description: "Understanding emotions as signals and finding the gold in our wounds.",
+        audioUrl: "/attached_assets/turning towards the difficult 15 Minutes_1751650302023.mp3",
+        duration: 15,
+        illustration: "turning-towards-discomfort",
+        isLocked: false,
+        handyHack: "The 5 Elements (anger, sadness, joy, disgust, fear)"
+      },
+      {
+        week: 6,
+        title: "Five Elements Practice",
+        description: "Harmonizing with natural elements for deeper awareness",
+        audioUrl: "https://soundcloud.com/undoing-agency/5-elements-practice",
+        duration: 15,
+        illustration: "five-elements",
+        isLocked: false
+      },
+      {
+        week: 7,
+        title: "The Perfect Distance",
+        practiceName: "The Four Pillars",
+        description: "When distance collapses, there is simply what is happening \u2014 and true response-ability becomes possible.",
+        audioUrl: "/attached_assets/fourpillarspractice_1751651309349.mp3",
+        duration: 22,
+        illustration: "journaling-flow",
+        isLocked: false,
+        handyHack: "Presence - Set Frame - Release",
+        journaling: "Full Flow Journal System (Gratitude, High Flow & High Value Priorities, Script Your Day, Review Your Day)"
+      },
+      {
+        week: 8,
+        title: "Falling Awake",
+        practiceName: "Great Smile Practice",
+        description: "Embracing the paradox of awakening and falling in love with what is.",
+        audioUrl: "/attached_assets/great smile practice_1751652000000.mp3",
+        duration: 16,
+        illustration: "great-smile",
+        isLocked: false,
+        handyHack: "Great Smile"
+      }
+    ];
+    sessionData2.forEach((session, index2) => {
+      const id = index2 + 1;
+      this.sessions.set(id, { ...session, id });
+    });
+  }
+  async getUserProgress(userId) {
+    return Array.from(this.userProgress.values()).filter(
+      (progress) => progress.userId === userId
+    );
+  }
+  async updateSessionProgress(userId, sessionId, progress) {
+    const key = `${userId}-${sessionId}`;
+    const existing = this.userProgress.get(key);
+    if (existing) {
+      const updated = { ...existing, ...progress };
+      this.userProgress.set(key, updated);
+    } else {
+      const id = this.currentId++;
+      const newProgress = {
+        id,
+        userId,
+        sessionId,
+        completed: false,
+        completedAt: null,
+        audioProgress: 0,
+        totalListenTime: 0,
+        streakDays: 0,
+        ...progress
+      };
+      this.userProgress.set(key, newProgress);
+    }
+  }
+  async completeSession(userId, sessionId, preMood, postMood) {
+    const key = `${userId}-${sessionId}`;
+    const existing = this.userProgress.get(key);
+    if (existing) {
+      existing.completed = true;
+      existing.completedAt = /* @__PURE__ */ new Date();
+      if (preMood !== void 0) existing.preMood = preMood;
+      if (postMood !== void 0) existing.postMood = postMood;
+      this.userProgress.set(key, existing);
+    } else {
+      const id = this.currentId++;
+      const newProgress = {
+        id,
+        userId,
+        sessionId,
+        completed: true,
+        completedAt: /* @__PURE__ */ new Date(),
+        audioProgress: 0,
+        totalListenTime: 0,
+        streakDays: 0,
+        preMood: preMood ?? null,
+        postMood: postMood ?? null
+      };
+      this.userProgress.set(key, newProgress);
+    }
+  }
+  async getUserJournalEntries(userId) {
+    return Array.from(this.journalEntries.values()).filter(
+      (entry) => entry.userId === userId
+    );
+  }
+  async createJournalEntry(userId, entry) {
+    const id = this.currentId++;
+    const journalEntry = {
+      id,
+      userId,
+      date: /* @__PURE__ */ new Date(),
+      gratitude1: entry.gratitude1 || null,
+      gratitude2: entry.gratitude2 || null,
+      gratitude3: entry.gratitude3 || null,
+      highValuePriority1: entry.highValuePriority1 || null,
+      highValuePriority2: entry.highValuePriority2 || null,
+      highValuePriority3: entry.highValuePriority3 || null,
+      highFlowPriority1: entry.highFlowPriority1 || null,
+      highFlowPriority2: entry.highFlowPriority2 || null,
+      highFlowPriority3: entry.highFlowPriority3 || null,
+      scriptingVoiceNote: entry.scriptingVoiceNote || null,
+      scriptingText: entry.scriptingText || null,
+      reflectionVoiceNote: entry.reflectionVoiceNote || null,
+      reflectionText: entry.reflectionText || null,
+      morningCompleted: entry.morningCompleted || false,
+      eveningCompleted: entry.eveningCompleted || false,
+      completedAt: null
+    };
+    this.journalEntries.set(id, journalEntry);
+    return journalEntry;
+  }
+  async updateJournalEntry(userId, entryId, entryData) {
+    const existingEntry = this.journalEntries.get(entryId);
+    if (!existingEntry || existingEntry.userId !== userId) {
+      throw new Error("Journal entry not found");
+    }
+    const updatedEntry = {
+      ...existingEntry,
+      gratitude1: entryData.gratitude1 !== void 0 ? entryData.gratitude1 : existingEntry.gratitude1,
+      gratitude2: entryData.gratitude2 !== void 0 ? entryData.gratitude2 : existingEntry.gratitude2,
+      gratitude3: entryData.gratitude3 !== void 0 ? entryData.gratitude3 : existingEntry.gratitude3,
+      highValuePriority1: entryData.highValuePriority1 !== void 0 ? entryData.highValuePriority1 : existingEntry.highValuePriority1,
+      highValuePriority2: entryData.highValuePriority2 !== void 0 ? entryData.highValuePriority2 : existingEntry.highValuePriority2,
+      highValuePriority3: entryData.highValuePriority3 !== void 0 ? entryData.highValuePriority3 : existingEntry.highValuePriority3,
+      highFlowPriority1: entryData.highFlowPriority1 !== void 0 ? entryData.highFlowPriority1 : existingEntry.highFlowPriority1,
+      highFlowPriority2: entryData.highFlowPriority2 !== void 0 ? entryData.highFlowPriority2 : existingEntry.highFlowPriority2,
+      highFlowPriority3: entryData.highFlowPriority3 !== void 0 ? entryData.highFlowPriority3 : existingEntry.highFlowPriority3,
+      scriptingVoiceNote: entryData.scriptingVoiceNote !== void 0 ? entryData.scriptingVoiceNote : existingEntry.scriptingVoiceNote,
+      scriptingText: entryData.scriptingText !== void 0 ? entryData.scriptingText : existingEntry.scriptingText,
+      reflectionVoiceNote: entryData.reflectionVoiceNote !== void 0 ? entryData.reflectionVoiceNote : existingEntry.reflectionVoiceNote,
+      reflectionText: entryData.reflectionText !== void 0 ? entryData.reflectionText : existingEntry.reflectionText,
+      morningCompleted: entryData.morningCompleted !== void 0 ? entryData.morningCompleted : existingEntry.morningCompleted,
+      eveningCompleted: entryData.eveningCompleted !== void 0 ? entryData.eveningCompleted : existingEntry.eveningCompleted,
+      completedAt: entryData.morningCompleted && entryData.eveningCompleted ? /* @__PURE__ */ new Date() : existingEntry.completedAt
+    };
+    this.journalEntries.set(entryId, updatedEntry);
+    return updatedEntry;
+  }
+  async getAllHandyHacks() {
+    return Array.from(this.handyHacks.values());
+  }
+  async getRandomHandyHack() {
+    const hacks = Array.from(this.handyHacks.values());
+    if (hacks.length === 0) return void 0;
+    return hacks[Math.floor(Math.random() * hacks.length)];
+  }
+  async markHackComplete(userId, hackId) {
+    const id = this.currentId++;
+    const completion = {
+      id,
+      userId,
+      hackId,
+      completedAt: /* @__PURE__ */ new Date()
+    };
+    this.userHackCompletions.set(id, completion);
+  }
+  async getUserHackCompletions(userId) {
+    return Array.from(this.userHackCompletions.values()).filter(
+      (completion) => completion.userId === userId
+    );
+  }
+  async getHackPracticeCounts(userId, hackId) {
+    const now = /* @__PURE__ */ new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfWeek = new Date(startOfToday);
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    const completions = Array.from(this.userHackCompletions.values()).filter(
+      (completion) => completion.userId === userId && completion.hackId === hackId
+    );
+    const todayCount = completions.filter(
+      (c) => c.completedAt && new Date(c.completedAt) >= startOfToday
+    ).length;
+    const weekCount = completions.filter(
+      (c) => c.completedAt && new Date(c.completedAt) >= startOfWeek
+    ).length;
+    return { today: todayCount, thisWeek: weekCount };
+  }
+  async initializeHandyHacks() {
+    const hacksData = [
+      {
+        title: "Remember to Drop the Balloon!",
+        description: "Let go of what you're carrying that isn't yours to hold. Release mental burdens and find lightness.",
+        category: "week-1",
+        illustration: "dropping-balloon"
+      },
+      {
+        title: "Remember to Unclench and Breathe",
+        description: "Notice where you're holding tension and soften. Allow your breath to flow naturally.",
+        category: "week-2",
+        illustration: "seven-stations-spine"
+      },
+      {
+        title: "Remember to Take the Three Precious Pills!",
+        description: "Connect with the fundamental aliveness within. Feel the sense of being alive in this moment.",
+        category: "week-3",
+        illustration: "the-sense-being-alive"
+      },
+      {
+        title: "Remember to Explore Opening and Closing to Experience",
+        description: "Notice how you open to pleasant experiences and close to difficult ones. Practice staying present with both.",
+        category: "week-4",
+        illustration: "mind-body-movement"
+      },
+      {
+        title: "Remember to Watch the Wanting",
+        description: "Observe your desires and wanting without being swept away by them. What if all there is is this moment?",
+        category: "week-5",
+        illustration: "what-if-all-there-is"
+      },
+      {
+        title: "Remember to Connect with the 5 Elements",
+        description: "Ground yourself by connecting with earth, water, fire, air, and space. Feel your place in the natural world.",
+        category: "week-6",
+        illustration: "five-elements"
+      },
+      {
+        title: "Remember to Add Scripting and Reflecting to Your Journaling",
+        description: "Use the four pillars of wellbeing: script your day, reflect on what went well, and plan mindfully.",
+        category: "week-7",
+        illustration: "four-pillars"
+      },
+      {
+        title: "Remember to Do a Great Smile",
+        description: "Let a genuine smile arise from within. Feel how it transforms your inner state and radiates outward.",
+        category: "week-8",
+        illustration: "great-smile"
+      }
+    ];
+    hacksData.forEach((hack, index2) => {
+      const id = index2 + 1;
+      this.handyHacks.set(id, { ...hack, id });
+    });
+  }
+  async createNotification(userId, notification) {
+    const id = this.currentId++;
+    const newNotification = {
+      ...notification,
+      id,
+      userId,
+      sent: false,
+      read: false,
+      isRecurring: false,
+      recurringPattern: null,
+      nextScheduled: null
+    };
+    this.notifications.set(id, newNotification);
+    return newNotification;
+  }
+  async getUserNotifications(userId) {
+    return Array.from(this.notifications.values()).filter(
+      (notification) => notification.userId === userId
+    );
+  }
+  async markNotificationRead(notificationId) {
+    const notification = this.notifications.get(notificationId);
+    if (notification) {
+      notification.read = true;
+      this.notifications.set(notificationId, notification);
+    }
+  }
+  // Milestone methods
+  async getAllMilestones() {
+    return Array.from(this.milestones.values());
+  }
+  async getUserMilestones(userId) {
+    return Array.from(this.userMilestones.values()).filter(
+      (milestone) => milestone.userId === userId
+    );
+  }
+  async checkAndUpdateMilestones(userId) {
+    const userProgress2 = await this.getUserProgress(userId);
+    const userHackCompletions2 = await this.getUserHackCompletions(userId);
+    const allMilestones = await this.getAllMilestones();
+    const userMilestones2 = await this.getUserMilestones(userId);
+    const newMilestones = [];
+    for (const milestone of allMilestones) {
+      const existingMilestone = userMilestones2.find((um) => um.milestoneId === milestone.id);
+      if (existingMilestone) continue;
+      let currentProgress = 0;
+      let achieved = false;
+      switch (milestone.type) {
+        case "sessions":
+          currentProgress = userProgress2.filter((p) => p.completed).length;
+          achieved = currentProgress >= milestone.target;
+          break;
+        case "time":
+          currentProgress = userProgress2.reduce((total, p) => total + (p.totalListenTime || 0), 0);
+          achieved = currentProgress >= milestone.target;
+          break;
+        case "streak":
+          currentProgress = userProgress2.length > 0 ? Math.max(...userProgress2.map((p) => p.streakDays || 0)) : 0;
+          achieved = currentProgress >= milestone.target;
+          break;
+        case "weekly":
+          const completedWeeks = new Set(userProgress2.filter((p) => p.completed).map((p) => {
+            const session = Array.from(this.sessions.values()).find((s) => s.id === p.sessionId);
+            return session?.week;
+          }));
+          currentProgress = completedWeeks.size;
+          achieved = currentProgress >= milestone.target;
+          break;
+      }
+      if (achieved) {
+        const id = this.currentId++;
+        const newUserMilestone = {
+          id,
+          userId,
+          milestoneId: milestone.id,
+          achievedAt: /* @__PURE__ */ new Date(),
+          progress: currentProgress
+        };
+        this.userMilestones.set(id, newUserMilestone);
+        newMilestones.push(newUserMilestone);
+      }
+    }
+    return newMilestones;
+  }
+  async initializeMilestones() {
+    if (this.milestones.size > 0) return;
+    const milestoneData = [
+      {
+        id: 1,
+        title: "First Steps",
+        description: "Complete your first meditation session",
+        type: "sessions",
+        target: 1,
+        badge: "\u{1F331}",
+        color: "#10B981"
+      },
+      {
+        id: 2,
+        title: "Building Momentum",
+        description: "Complete 5 meditation sessions",
+        type: "sessions",
+        target: 5,
+        badge: "\u{1F33F}",
+        color: "#3B82F6"
+      },
+      {
+        id: 3,
+        title: "Dedication",
+        description: "Complete 10 meditation sessions",
+        type: "sessions",
+        target: 10,
+        badge: "\u{1F333}",
+        color: "#8B5CF6"
+      },
+      {
+        id: 4,
+        title: "Time Traveler",
+        description: "Meditate for 30 minutes total",
+        type: "time",
+        target: 1800,
+        // 30 minutes in seconds
+        badge: "\u23F0",
+        color: "#F59E0B"
+      },
+      {
+        id: 5,
+        title: "Mindful Hour",
+        description: "Meditate for 60 minutes total",
+        type: "time",
+        target: 3600,
+        // 60 minutes in seconds
+        badge: "\u{1F550}",
+        color: "#EF4444"
+      },
+      {
+        id: 6,
+        title: "Week Explorer",
+        description: "Complete sessions from 3 different weeks",
+        type: "weekly",
+        target: 3,
+        badge: "\u{1F5D3}\uFE0F",
+        color: "#06B6D4"
+      },
+      {
+        id: 7,
+        title: "Journey Master",
+        description: "Complete sessions from all 8 weeks",
+        type: "weekly",
+        target: 8,
+        badge: "\u{1F3C6}",
+        color: "#DC2626"
+      }
+    ];
+    milestoneData.forEach((milestone) => {
+      this.milestones.set(milestone.id, milestone);
+    });
+  }
+  // Notification Settings methods
+  async updateUserNotificationSettings(userId, settings) {
+    const user = this.users.get(userId);
+    if (user) {
+      const updatedUser = {
+        ...user,
+        notificationsEnabled: settings.notificationsEnabled,
+        reminderTime: settings.reminderTime,
+        reminderDays: settings.reminderDays
+      };
+      this.users.set(userId, updatedUser);
+    }
+  }
+  async scheduleUserReminders(userId) {
+    const user = this.users.get(userId);
+    if (!user || !user.notificationsEnabled) {
+      return;
+    }
+    const existingReminders = Array.from(this.notifications.values()).filter(
+      (n) => n.userId === userId && n.type === "reminder"
+    );
+    existingReminders.forEach((reminder) => {
+      this.notifications.delete(reminder.id);
+    });
+    const reminderDays = user.reminderDays || [1, 2, 3, 4, 5];
+    const reminderTime = user.reminderTime || "09:00";
+    const [hours, minutes] = reminderTime.split(":").map(Number);
+    for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+      const targetDate = /* @__PURE__ */ new Date();
+      targetDate.setDate(targetDate.getDate() + dayOffset);
+      const dayOfWeek = targetDate.getDay();
+      if (reminderDays.includes(dayOfWeek)) {
+        targetDate.setHours(hours, minutes, 0, 0);
+        if (targetDate > /* @__PURE__ */ new Date()) {
+          const reminderMessages = [
+            "Time for your daily mindfulness practice! \u{1F9D8}\u200D\u2640\uFE0F",
+            "Take a moment to breathe and be present \u{1F331}",
+            "Your meditation session is waiting for you \u2728",
+            "Remember to pause and practice mindfulness today \u{1F338}",
+            "A few minutes of mindfulness can transform your day \u{1F31F}"
+          ];
+          const randomMessage = reminderMessages[Math.floor(Math.random() * reminderMessages.length)];
+          const id = this.currentId++;
+          const reminder = {
+            id,
+            userId,
+            type: "reminder",
+            title: "Practice Reminder",
+            message: randomMessage,
+            scheduledFor: targetDate,
+            sent: false,
+            read: false,
+            isRecurring: true,
+            recurringPattern: "daily",
+            nextScheduled: targetDate
+          };
+          this.notifications.set(id, reminder);
+        }
+      }
+    }
+  }
+};
+var storage = process.env.DATABASE_URL ? new DatabaseStorage() : new MemStorage();
 
 // server/routes.ts
 init_schema();
@@ -1054,8 +1671,8 @@ async function registerRoutes(app2) {
     try {
       const userId = req.user.claims.sub;
       const { courseFormat } = req.body;
-      if (courseFormat !== "8-week" && courseFormat !== "4-week") {
-        return res.status(400).json({ error: "Course format must be '8-week' or '4-week'" });
+      if (!["8-week", "4-week", "3-day"].includes(courseFormat)) {
+        return res.status(400).json({ error: "Course format must be '8-week', '4-week', or '3-day'" });
       }
       await storage.updateUserCourseFormat(userId, courseFormat);
       res.json({ success: true });
@@ -1071,9 +1688,9 @@ async function registerRoutes(app2) {
     await storage.initializeMilestones();
     await storage.upsertUser({
       id: "1",
-      email: "demo@example.com",
-      firstName: "Demo",
-      lastName: "User"
+      email: null,
+      firstName: null,
+      lastName: null
     });
   } catch (error) {
     console.error("Failed to initialize storage:", error);
@@ -1191,7 +1808,10 @@ async function registerRoutes(app2) {
       if (isNaN(sessionId)) {
         return res.status(400).json({ error: "Invalid session ID" });
       }
-      await storage.completeSession(userId, sessionId);
+      const { preMood, postMood } = req.body;
+      const parsedPreMood = preMood !== void 0 ? parseInt(preMood) : void 0;
+      const parsedPostMood = postMood !== void 0 ? parseInt(postMood) : void 0;
+      await storage.completeSession(userId, sessionId, parsedPreMood, parsedPostMood);
       res.json({ success: true });
     } catch (error) {
       console.error("Error completing session:", error);
@@ -1472,7 +2092,7 @@ async function registerRoutes(app2) {
 
 // server/vite.ts
 import express from "express";
-import fs2 from "fs";
+import fs3 from "fs";
 import path3 from "path";
 import { createServer as createViteServer, createLogger } from "vite";
 
@@ -1480,11 +2100,23 @@ import { createServer as createViteServer, createLogger } from "vite";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path2 from "path";
+import fs2 from "fs";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 var vite_config_default = defineConfig({
   plugins: [
     react(),
     runtimeErrorOverlay(),
+    // Copy attached_assets into the build output so Capacitor iOS/Android can serve them
+    {
+      name: "copy-attached-assets",
+      closeBundle() {
+        const src = path2.resolve(import.meta.dirname, "attached_assets");
+        const dest = path2.resolve(import.meta.dirname, "dist/public/attached_assets");
+        if (fs2.existsSync(src)) {
+          fs2.cpSync(src, dest, { recursive: true });
+        }
+      }
+    },
     ...process.env.NODE_ENV !== "production" && process.env.REPL_ID !== void 0 ? [
       await import("@replit/vite-plugin-cartographer").then(
         (m) => m.cartographer()
@@ -1552,7 +2184,7 @@ async function setupVite(app2, server) {
         "client",
         "index.html"
       );
-      let template = await fs2.promises.readFile(clientTemplate, "utf-8");
+      let template = await fs3.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`
@@ -1567,7 +2199,7 @@ async function setupVite(app2, server) {
 }
 function serveStatic(app2) {
   const distPath = path3.resolve(import.meta.dirname, "public");
-  if (!fs2.existsSync(distPath)) {
+  if (!fs3.existsSync(distPath)) {
     throw new Error(
       `Could not find the build directory: ${distPath}, make sure to build the client first`
     );
