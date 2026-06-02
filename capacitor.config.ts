@@ -4,11 +4,8 @@ const config: CapacitorConfig = {
   appId: 'com.ctos.mindfulness',
   appName: 'CTOS',
   webDir: 'dist/public',
-  server: {
-    url: 'https://d6530157-faac-4ef2-88a6-b67b5d88e1bd-00-127quj4s0j5cu.worf.replit.dev',
-    cleartext: true,
-    androidScheme: 'https'
-  },
+  // server.url removed — iOS/Android load from local bundle, not a remote server
+  // (remote URL was a Replit dev convenience that bypassed the local build)
   ios: {
     contentInset: 'never',
     backgroundColor: '#f8f9fa'
