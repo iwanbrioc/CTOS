@@ -164,13 +164,13 @@ export function NotificationSettings({ userId }: NotificationSettingsProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="overflow-hidden border-sky-100">
-        <CardHeader className="bg-gradient-to-br from-sky-50 to-blue-50">
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="h-5 w-5" />
+      <Card className="overflow-hidden border-0">
+        <CardHeader className="bg-gradient-to-br from-sky-400 to-blue-600">
+          <CardTitle className="flex items-center gap-2 text-white">
+            <Bell className="h-5 w-5 text-white/90" />
             Practice Reminders
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-white/80">
             Set up daily reminders to help maintain your mindfulness practice
           </CardDescription>
         </CardHeader>

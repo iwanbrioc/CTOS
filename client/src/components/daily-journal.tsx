@@ -262,13 +262,13 @@ export function DailyJournal({ userId }: DailyJournalProps) {
 
         <TabsContent value="morning" className="space-y-6 mt-6">
           {/* Gratitude Section */}
-          <Card className="overflow-hidden border-rose-100">
-            <CardHeader className="bg-gradient-to-br from-rose-50 to-pink-50">
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-red-500" />
+          <Card className="overflow-hidden border-0">
+            <CardHeader className="bg-gradient-to-br from-rose-400 to-pink-500">
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Heart className="h-5 w-5 text-white/90" />
                 3 Things I'm Grateful For
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-white/80">
                 Start your day with appreciation and positive energy
               </CardDescription>
             </CardHeader>
@@ -288,13 +288,13 @@ export function DailyJournal({ userId }: DailyJournalProps) {
           </Card>
 
           {/* High Value Priorities */}
-          <Card className="overflow-hidden border-blue-100">
-            <CardHeader className="bg-gradient-to-br from-blue-50 to-indigo-50">
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-blue-500" />
+          <Card className="overflow-hidden border-0">
+            <CardHeader className="bg-gradient-to-br from-blue-400 to-indigo-600">
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Target className="h-5 w-5 text-white/90" />
                 3 High Value Priorities
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-white/80">
                 Important tasks that move you closer to your goals
               </CardDescription>
             </CardHeader>
@@ -314,13 +314,13 @@ export function DailyJournal({ userId }: DailyJournalProps) {
           </Card>
 
           {/* High Flow Priorities */}
-          <Card className="overflow-hidden border-amber-100">
-            <CardHeader className="bg-gradient-to-br from-amber-50 to-yellow-50">
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-yellow-500" />
+          <Card className="overflow-hidden border-0">
+            <CardHeader className="bg-gradient-to-br from-amber-400 to-orange-500">
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Zap className="h-5 w-5 text-white/90" />
                 3 High Flow Priorities
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-white/80">
                 Activities that energize you and bring joy
               </CardDescription>
             </CardHeader>
@@ -340,13 +340,13 @@ export function DailyJournal({ userId }: DailyJournalProps) {
           </Card>
 
           {/* Script the Day */}
-          <Card className="overflow-hidden border-purple-100">
-            <CardHeader className="bg-gradient-to-br from-purple-50 to-violet-50">
-              <CardTitle className="flex items-center gap-2">
-                <Mic className="h-5 w-5 text-purple-500" />
+          <Card className="overflow-hidden border-0">
+            <CardHeader className="bg-gradient-to-br from-purple-400 to-violet-600">
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Mic className="h-5 w-5 text-white/90" />
                 Script Your Day
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-white/80">
                 Write how you want your day to unfold
               </CardDescription>
             </CardHeader>
@@ -375,13 +375,13 @@ export function DailyJournal({ userId }: DailyJournalProps) {
         </TabsContent>
 
         <TabsContent value="evening" className="space-y-6 mt-6">
-          <Card className="overflow-hidden border-indigo-100">
-            <CardHeader className="bg-gradient-to-br from-indigo-50 to-slate-100">
-              <CardTitle className="flex items-center gap-2">
-                <Moon className="h-5 w-5 text-indigo-500" />
+          <Card className="overflow-hidden border-0">
+            <CardHeader className="bg-gradient-to-br from-indigo-400 to-blue-600">
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Moon className="h-5 w-5 text-white/90" />
                 Daily Reflection
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-white/80">
                 Reflect on your day with awareness and compassion
               </CardDescription>
             </CardHeader>

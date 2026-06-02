@@ -198,14 +198,14 @@ export function MilestoneTracker({ userId }: MilestoneTrackerProps) {
       )}
 
       {/* Overall Progress Summary */}
-      <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+      <Card className="bg-gradient-to-br from-violet-500 to-purple-600 border-0">
         <CardContent className="p-6">
           <div className="text-center">
-            <div className="text-3xl font-bold text-purple-900 mb-2">
-              {Math.round((achievedMilestones.length / milestones.length) * 100)}%
+            <div className="text-3xl font-bold text-white mb-2">
+              {milestones.length > 0 ? Math.round((achievedMilestones.length / milestones.length) * 100) : 0}%
             </div>
-            <div className="text-purple-700 font-medium">Overall Progress</div>
-            <div className="text-sm text-purple-600 mt-1">
+            <div className="text-white/90 font-medium">Overall Progress</div>
+            <div className="text-sm text-white/75 mt-1">
               Keep going! You're making great progress on your mindfulness journey.
             </div>
           </div>
