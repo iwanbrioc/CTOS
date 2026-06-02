@@ -65,7 +65,8 @@ export function DailyJournal({ userId }: DailyJournalProps) {
     evening: Array(50).fill(0)
   });
   const [animationFrameId, setAnimationFrameId] = useState<number | null>(null);
-  
+  const [activeTab, setActiveTab] = useState<'morning' | 'evening'>('morning');
+
   // Get today's date for filtering
   const today = new Date().toDateString();
   
@@ -225,221 +226,245 @@ export function DailyJournal({ userId }: DailyJournalProps) {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
-        <div className="h-64 bg-gray-200 rounded animate-pulse"></div>
+      <div className="-mx-6 px-6 pt-6 pb-8 space-y-4 bg-gradient-to-b from-amber-50 to-white min-h-screen">
+        <div className="h-6 w-40 bg-amber-200/60 rounded-full animate-pulse mx-auto" />
+        <div className="h-14 bg-white/70 rounded-2xl animate-pulse" />
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="h-28 bg-white/70 rounded-3xl animate-pulse" />
+        ))}
       </div>
     );
   }
 
+  const morningDone = !!todayEntry.morningCompleted;
+  const eveningDone = !!todayEntry.eveningCompleted;
+
   return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900">Daily Journal</h2>
-        <p className="text-gray-600 mt-1">
-          {new Date().toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })}
+    <div className={`-mx-6 px-6 pt-5 pb-8 min-h-screen transition-colors duration-700 ${
+      activeTab === 'morning'
+        ? 'bg-gradient-to-b from-amber-50 via-orange-50/60 to-white'
+        : 'bg-gradient-to-b from-indigo-50 via-blue-50/50 to-white'
+    }`}>
+
+      {/* Date */}
+      <div className="text-center mb-5">
+        <p className={`text-xs font-semibold tracking-widest uppercase mb-0.5 transition-colors duration-500 ${
+          activeTab === 'morning' ? 'text-amber-500' : 'text-indigo-400'
+        }`}>
+          {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
         </p>
+        <h2 className="text-xl font-bold text-gray-900">
+          {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+        </h2>
       </div>
 
-      <Tabs defaultValue="morning" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="morning" className="flex items-center gap-2">
-            <Sun className="h-4 w-4" />
-            Morning Routine
-            {todayEntry.morningCompleted && <CheckCircle className="h-3 w-3 text-green-600" />}
-          </TabsTrigger>
-          <TabsTrigger value="evening" className="flex items-center gap-2">
-            <Moon className="h-4 w-4" />
-            Evening Reflection
-            {todayEntry.eveningCompleted && <CheckCircle className="h-3 w-3 text-green-600" />}
-          </TabsTrigger>
-        </TabsList>
+      {/* Tab toggle */}
+      <div className="flex bg-white/80 backdrop-blur-sm rounded-2xl p-1.5 shadow-sm mb-6 gap-1">
+        <button
+          onClick={() => setActiveTab('morning')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${
+            activeTab === 'morning'
+              ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-md'
+              : 'text-gray-400'
+          }`}
+        >
+          <Sun className="h-4 w-4" />
+          Morning
+          {morningDone && <CheckCircle className="h-3.5 w-3.5 opacity-90" />}
+        </button>
+        <button
+          onClick={() => setActiveTab('evening')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${
+            activeTab === 'evening'
+              ? 'bg-gradient-to-r from-indigo-400 to-blue-600 text-white shadow-md'
+              : 'text-gray-400'
+          }`}
+        >
+          <Moon className="h-4 w-4" />
+          Evening
+          {eveningDone && <CheckCircle className="h-3.5 w-3.5 opacity-90" />}
+        </button>
+      </div>
 
-        <TabsContent value="morning" className="space-y-6 mt-6">
-          {/* Gratitude Section */}
-          <Card className="overflow-hidden border-0">
-            <CardHeader className="bg-gradient-to-br from-rose-400 to-pink-500">
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Heart className="h-5 w-5 text-white/90" />
-                3 Things I'm Grateful For
-              </CardTitle>
-              <CardDescription className="text-white/80">
-                Start your day with appreciation and positive energy
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[1, 2, 3].map((num) => (
-                <div key={num}>
-                  <Label htmlFor={`gratitude${num}`}>Gratitude {num}</Label>
-                  <Input
-                    id={`gratitude${num}`}
-                    placeholder={`What are you grateful for today? (${num}/3)`}
-                    value={todayEntry[`gratitude${num}` as keyof InsertJournalEntry] as string || ''}
-                    onChange={(e) => updateField(`gratitude${num}` as keyof InsertJournalEntry, e.target.value)}
-                  />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+      {/* ── Morning ──────────────────────────────────── */}
+      {activeTab === 'morning' && (
+        <div className="space-y-4">
 
-          {/* High Value Priorities */}
-          <Card className="overflow-hidden border-0">
-            <CardHeader className="bg-gradient-to-br from-blue-400 to-indigo-600">
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Target className="h-5 w-5 text-white/90" />
-                3 High Value Priorities
-              </CardTitle>
-              <CardDescription className="text-white/80">
-                Important tasks that move you closer to your goals
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[1, 2, 3].map((num) => (
-                <div key={num}>
-                  <Label htmlFor={`highValue${num}`}>Priority {num}</Label>
-                  <Input
-                    id={`highValue${num}`}
-                    placeholder={`High value task that matters most (${num}/3)`}
-                    value={todayEntry[`highValuePriority${num}` as keyof InsertJournalEntry] as string || ''}
-                    onChange={(e) => updateField(`highValuePriority${num}` as keyof InsertJournalEntry, e.target.value)}
-                  />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* High Flow Priorities */}
-          <Card className="overflow-hidden border-0">
-            <CardHeader className="bg-gradient-to-br from-amber-400 to-orange-500">
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Zap className="h-5 w-5 text-white/90" />
-                3 High Flow Priorities
-              </CardTitle>
-              <CardDescription className="text-white/80">
-                Activities that energize you and bring joy
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[1, 2, 3].map((num) => (
-                <div key={num}>
-                  <Label htmlFor={`highFlow${num}`}>Flow Priority {num}</Label>
-                  <Input
-                    id={`highFlow${num}`}
-                    placeholder={`Activity that brings you energy (${num}/3)`}
-                    value={todayEntry[`highFlowPriority${num}` as keyof InsertJournalEntry] as string || ''}
-                    onChange={(e) => updateField(`highFlowPriority${num}` as keyof InsertJournalEntry, e.target.value)}
-                  />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Script the Day */}
-          <Card className="overflow-hidden border-0">
-            <CardHeader className="bg-gradient-to-br from-purple-400 to-violet-600">
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Mic className="h-5 w-5 text-white/90" />
-                Script Your Day
-              </CardTitle>
-              <CardDescription className="text-white/80">
-                Write how you want your day to unfold
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          {/* Gratitude */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden">
+            <div className="bg-gradient-to-br from-rose-400 to-pink-500 px-5 py-4 flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-white/25 flex items-center justify-center shrink-0">
+                <Heart className="h-5 w-5 text-white" />
+              </div>
               <div>
-                <Label htmlFor="scriptingText">Write your day script</Label>
-                <Textarea
-                  id="scriptingText"
-                  placeholder="Describe how you want your day to go... What will make it meaningful and successful?"
-                  value={todayEntry.scriptingText as string || ''}
-                  onChange={(e) => updateField('scriptingText', e.target.value)}
-                  rows={4}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Button 
-            onClick={saveMorningRoutine}
-            disabled={saveMutation.isPending}
-            className="w-full"
-            size="lg"
-          >
-            {todayEntry.morningCompleted ? "Update Morning Routine" : "Complete Morning Routine"}
-          </Button>
-        </TabsContent>
-
-        <TabsContent value="evening" className="space-y-6 mt-6">
-          <Card className="overflow-hidden border-0">
-            <CardHeader className="bg-gradient-to-br from-indigo-400 to-blue-600">
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Moon className="h-5 w-5 text-white/90" />
-                Daily Reflection
-              </CardTitle>
-              <CardDescription className="text-white/80">
-                Reflect on your day with awareness and compassion
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="reflectionText">Write your reflection</Label>
-                <Textarea
-                  id="reflectionText"
-                  placeholder="How did your day unfold? What did you learn? What are you grateful for? What would you do differently?"
-                  value={todayEntry.reflectionText as string || ''}
-                  onChange={(e) => updateField('reflectionText', e.target.value)}
-                  rows={6}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Button 
-            onClick={saveEveningRoutine}
-            disabled={saveMutation.isPending}
-            className="w-full"
-            size="lg"
-          >
-            {todayEntry.eveningCompleted ? "Update Evening Reflection" : "Complete Evening Reflection"}
-          </Button>
-        </TabsContent>
-      </Tabs>
-
-      {/* Progress Summary */}
-      <Card className="bg-gradient-to-br from-gray-50 to-slate-100 border-gray-200">
-        <CardContent className="pt-6">
-          <div className="text-center">
-            <div className="flex justify-center gap-4">
-              <div className="flex items-center gap-2">
-                <Sun className="h-4 w-4" />
-                <span className="text-sm">Morning</span>
-                {todayEntry.morningCompleted ? (
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                ) : (
-                  <Clock className="h-4 w-4 text-gray-400" />
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <Moon className="h-4 w-4" />
-                <span className="text-sm">Evening</span>
-                {todayEntry.eveningCompleted ? (
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                ) : (
-                  <Clock className="h-4 w-4 text-gray-400" />
-                )}
+                <h3 className="font-bold text-white leading-tight">3 Things I'm Grateful For</h3>
+                <p className="text-white/75 text-xs mt-0.5">Start your day with appreciation</p>
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Complete both routines to maximize your mindfulness practice
-            </p>
+            <div className="px-5 py-4 space-y-3">
+              {[1, 2, 3].map(num => (
+                <div key={num} className="flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-full bg-rose-100 text-rose-500 text-xs font-bold flex items-center justify-center shrink-0">
+                    {num}
+                  </span>
+                  <Input
+                    placeholder="I'm grateful for..."
+                    value={todayEntry[`gratitude${num}` as keyof InsertJournalEntry] as string || ''}
+                    onChange={e => updateField(`gratitude${num}` as keyof InsertJournalEntry, e.target.value)}
+                    className="border-rose-100 bg-rose-50/40 focus-visible:ring-rose-300"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* High Value */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden">
+            <div className="bg-gradient-to-br from-blue-400 to-indigo-600 px-5 py-4 flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-white/25 flex items-center justify-center shrink-0">
+                <Target className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-bold text-white leading-tight">3 High Value Priorities</h3>
+                <p className="text-white/75 text-xs mt-0.5">What matters most today</p>
+              </div>
+            </div>
+            <div className="px-5 py-4 space-y-3">
+              {[1, 2, 3].map(num => (
+                <div key={num} className="flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-full bg-blue-100 text-blue-500 text-xs font-bold flex items-center justify-center shrink-0">
+                    {num}
+                  </span>
+                  <Input
+                    placeholder="Important task..."
+                    value={todayEntry[`highValuePriority${num}` as keyof InsertJournalEntry] as string || ''}
+                    onChange={e => updateField(`highValuePriority${num}` as keyof InsertJournalEntry, e.target.value)}
+                    className="border-blue-100 bg-blue-50/40 focus-visible:ring-blue-300"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* High Flow */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden">
+            <div className="bg-gradient-to-br from-amber-400 to-orange-500 px-5 py-4 flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-white/25 flex items-center justify-center shrink-0">
+                <Zap className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-bold text-white leading-tight">3 High Flow Priorities</h3>
+                <p className="text-white/75 text-xs mt-0.5">Activities that energise you</p>
+              </div>
+            </div>
+            <div className="px-5 py-4 space-y-3">
+              {[1, 2, 3].map(num => (
+                <div key={num} className="flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-full bg-amber-100 text-amber-600 text-xs font-bold flex items-center justify-center shrink-0">
+                    {num}
+                  </span>
+                  <Input
+                    placeholder="Energising activity..."
+                    value={todayEntry[`highFlowPriority${num}` as keyof InsertJournalEntry] as string || ''}
+                    onChange={e => updateField(`highFlowPriority${num}` as keyof InsertJournalEntry, e.target.value)}
+                    className="border-amber-100 bg-amber-50/40 focus-visible:ring-amber-300"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Script */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden">
+            <div className="bg-gradient-to-br from-purple-400 to-violet-600 px-5 py-4 flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-white/25 flex items-center justify-center shrink-0">
+                <Mic className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-bold text-white leading-tight">Script Your Day</h3>
+                <p className="text-white/75 text-xs mt-0.5">Write how you want your day to unfold</p>
+              </div>
+            </div>
+            <div className="px-5 py-4">
+              <Textarea
+                placeholder="Today I will..."
+                value={todayEntry.scriptingText as string || ''}
+                onChange={e => updateField('scriptingText', e.target.value)}
+                rows={4}
+                className="border-purple-100 bg-purple-50/20 focus-visible:ring-purple-300"
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={saveMorningRoutine}
+            disabled={saveMutation.isPending}
+            className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 text-white font-semibold text-base shadow-lg shadow-orange-200/60 active:scale-[0.98] transition-all disabled:opacity-60"
+          >
+            {morningDone ? '✓  Morning Routine Updated' : 'Complete Morning Routine →'}
+          </button>
+        </div>
+      )}
+
+      {/* ── Evening ──────────────────────────────────── */}
+      {activeTab === 'evening' && (
+        <div className="space-y-4">
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl overflow-hidden">
+            <div className="bg-gradient-to-br from-indigo-400 to-blue-600 px-5 py-4 flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-white/25 flex items-center justify-center shrink-0">
+                <Moon className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-bold text-white leading-tight">Daily Reflection</h3>
+                <p className="text-white/75 text-xs mt-0.5">Close the day with awareness and compassion</p>
+              </div>
+            </div>
+            <div className="px-5 py-4">
+              <Textarea
+                placeholder="How did your day unfold? What did you learn? What are you grateful for? What would you do differently?"
+                value={todayEntry.reflectionText as string || ''}
+                onChange={e => updateField('reflectionText', e.target.value)}
+                rows={7}
+                className="border-indigo-100 bg-indigo-50/20 focus-visible:ring-indigo-300"
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={saveEveningRoutine}
+            disabled={saveMutation.isPending}
+            className="w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-400 to-blue-600 text-white font-semibold text-base shadow-lg shadow-indigo-200/60 active:scale-[0.98] transition-all disabled:opacity-60"
+          >
+            {eveningDone ? '✓  Evening Reflection Updated' : 'Complete Evening Reflection →'}
+          </button>
+        </div>
+      )}
+
+      {/* Completion tiles */}
+      <div className="mt-6 flex gap-3">
+        <div className={`flex-1 rounded-2xl p-4 text-center transition-all duration-500 ${
+          morningDone
+            ? 'bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-orange-200/50'
+            : 'bg-white/60 border border-white'
+        }`}>
+          <Sun className={`h-5 w-5 mx-auto mb-1.5 ${morningDone ? 'text-white' : 'text-gray-300'}`} />
+          <p className={`text-xs font-semibold ${morningDone ? 'text-white' : 'text-gray-400'}`}>Morning</p>
+          <p className={`text-xs mt-0.5 ${morningDone ? 'text-white/75' : 'text-gray-300'}`}>
+            {morningDone ? 'Complete ✓' : 'Pending'}
+          </p>
+        </div>
+        <div className={`flex-1 rounded-2xl p-4 text-center transition-all duration-500 ${
+          eveningDone
+            ? 'bg-gradient-to-br from-indigo-400 to-blue-600 shadow-lg shadow-indigo-200/50'
+            : 'bg-white/60 border border-white'
+        }`}>
+          <Moon className={`h-5 w-5 mx-auto mb-1.5 ${eveningDone ? 'text-white' : 'text-gray-300'}`} />
+          <p className={`text-xs font-semibold ${eveningDone ? 'text-white' : 'text-gray-400'}`}>Evening</p>
+          <p className={`text-xs mt-0.5 ${eveningDone ? 'text-white/75' : 'text-gray-300'}`}>
+            {eveningDone ? 'Complete ✓' : 'Pending'}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

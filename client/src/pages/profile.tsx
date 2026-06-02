@@ -84,7 +84,7 @@ export default function Profile() {
       <StatusBar />
       
       {/* Header */}
-      <header className="px-6 py-4 bg-gradient-to-r from-blue-50 via-indigo-50 to-violet-50 border-b border-indigo-100">
+      <header className="px-6 py-4 bg-white border-b border-gray-100">
         <div className="flex items-center space-x-4">
           <Link href="/">
             <Button variant="ghost" size="sm" className="p-2">
@@ -100,30 +100,42 @@ export default function Profile() {
 
       <main className="px-6 py-6 pb-24">
         
-        {/* Profile Header */}
-        <Card className="mb-6 overflow-hidden border-indigo-100 bg-gradient-to-br from-blue-50 via-indigo-50 to-violet-50">
-          <CardContent className="pt-6">
-            <div className="flex items-start space-x-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                <User className="h-8 w-8 text-white" />
+        {/* Profile Hero */}
+        <div className="mb-6 rounded-3xl shadow-xl overflow-hidden bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-600">
+          <div className="px-6 pt-6 pb-5">
+            <div className="flex items-center gap-4 mb-5">
+              <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center ring-4 ring-white/30 shadow-inner shrink-0">
+                <User className="h-10 w-10 text-white" />
               </div>
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold text-primary">
-                  {getUserName() ? `${getUserName()}'s Journey` : "My Journey"}
+              <div className="min-w-0">
+                <h2 className="text-2xl font-bold text-white leading-tight truncate">
+                  {getUserName() || "Explorer"}
                 </h2>
-                <p className="text-sm text-muted-foreground">
-                  Coming to Our Senses
-                </p>
-                <div className="flex items-center space-x-2 mt-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    Week {user?.currentWeek || 1} of 8
-                  </span>
-                </div>
+                <p className="text-white/70 text-sm mt-0.5">Coming to Our Senses</p>
+                <span className="inline-block mt-2 bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                  {joinedDaysAgo} days on the journey
+                </span>
               </div>
             </div>
-          </CardContent>
-        </Card>
+            {/* Week progress bar */}
+            <div className="bg-white/10 rounded-2xl px-4 py-3">
+              <div className="flex justify-between text-white/70 text-xs mb-2">
+                <span className="font-semibold">Week {user?.currentWeek || 1} of 8</span>
+                <span>{Math.round(((user?.currentWeek || 1) / 8) * 100)}% complete</span>
+              </div>
+              <div className="flex gap-1">
+                {[1,2,3,4,5,6,7,8].map(w => (
+                  <div
+                    key={w}
+                    className={`h-2 flex-1 rounded-full transition-all duration-500 ${
+                      w <= (user?.currentWeek || 1) ? 'bg-white shadow-sm' : 'bg-white/25'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Travelling Lighter Community */}
         <a
@@ -185,38 +197,27 @@ export default function Profile() {
           </TabsContent>
 
           <TabsContent value="progress" className="space-y-6 mt-6">
-            {/* Progress Stats */}
-            <Card className="overflow-hidden border-0">
-              <CardHeader className="bg-gradient-to-br from-emerald-400 to-teal-600">
-                <CardTitle className="flex items-center space-x-2 text-white">
-                  <Award className="h-5 w-5 text-white/90" />
-                  <span>Your Progress</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">{completedSessions}</div>
-                    <div className="text-sm text-muted-foreground">Sessions Completed</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">{totalMinutesPracticed}</div>
-                    <div className="text-sm text-muted-foreground">Minutes Practiced</div>
-                  </div>
+            {/* Stats metric tiles */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-gradient-to-br from-emerald-400 to-teal-500 rounded-3xl p-5 text-center shadow-xl shadow-emerald-100">
+                <div className="text-4xl font-bold text-white">{completedSessions}</div>
+                <div className="text-white/80 text-xs font-semibold mt-1 uppercase tracking-wide">Sessions</div>
+              </div>
+              <div className="bg-gradient-to-br from-violet-400 to-purple-500 rounded-3xl p-5 text-center shadow-xl shadow-violet-100">
+                <div className="text-4xl font-bold text-white">{totalMinutesPracticed}</div>
+                <div className="text-white/80 text-xs font-semibold mt-1 uppercase tracking-wide">Minutes</div>
+              </div>
+              <div className="bg-gradient-to-br from-rose-400 to-pink-500 rounded-3xl p-5 text-center shadow-xl shadow-rose-100">
+                <div className="text-4xl font-bold text-white">{hackCompletions.length}</div>
+                <div className="text-white/80 text-xs font-semibold mt-1 uppercase tracking-wide">Handy Hacks</div>
+              </div>
+              <div className="bg-gradient-to-br from-amber-400 to-orange-500 rounded-3xl p-5 text-center shadow-xl shadow-amber-100">
+                <div className="text-4xl font-bold text-white">
+                  {joinedDaysAgo}
                 </div>
-                
-                <div className="text-center">
-                  <div className="text-lg font-semibold text-primary">Week {user?.currentWeek || 1}</div>
-                  <div className="text-sm text-muted-foreground">Current Progress</div>
-                </div>
-                
-                <div className="flex justify-center space-x-2 mt-4">
-                  <Badge variant="secondary">
-                    {hackCompletions.length} Handy Hack Practices
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
+                <div className="text-white/80 text-xs font-semibold mt-1 uppercase tracking-wide">Days In</div>
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="achievements" className="space-y-6 mt-6">

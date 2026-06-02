@@ -14,7 +14,7 @@ export default function Journal() {
       <StatusBar />
       
       {/* Header */}
-      <header className="px-6 py-4 bg-gradient-to-r from-amber-50 via-rose-50 to-purple-50 border-b border-rose-100">
+      <header className="px-6 py-4 bg-white border-b border-gray-100">
         <div className="flex items-center space-x-4">
           <Link href="/">
             <Button variant="ghost" size="sm" className="p-2">
@@ -28,7 +28,7 @@ export default function Journal() {
         </div>
       </header>
 
-      <main className="px-6 py-6 pb-24">
+      <main className="px-6 pt-6 pb-24 overflow-hidden">
         <DailyJournal userId={DEMO_USER_ID} />
       </main>
 
