@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.ctos.mindfulness',
+  appId: 'com.iwanbrioc.mindfulcompanion.app',
   appName: 'CTOS',
   webDir: 'dist/public',
   // server.url removed — iOS/Android load from local bundle, not a remote server
