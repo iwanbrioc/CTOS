@@ -262,8 +262,8 @@ export function DailyJournal({ userId }: DailyJournalProps) {
 
         <TabsContent value="morning" className="space-y-6 mt-6">
           {/* Gratitude Section */}
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden border-rose-100">
+            <CardHeader className="bg-gradient-to-br from-rose-50 to-pink-50">
               <CardTitle className="flex items-center gap-2">
                 <Heart className="h-5 w-5 text-red-500" />
                 3 Things I'm Grateful For
@@ -288,8 +288,8 @@ export function DailyJournal({ userId }: DailyJournalProps) {
           </Card>
 
           {/* High Value Priorities */}
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden border-blue-100">
+            <CardHeader className="bg-gradient-to-br from-blue-50 to-indigo-50">
               <CardTitle className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-blue-500" />
                 3 High Value Priorities
@@ -314,8 +314,8 @@ export function DailyJournal({ userId }: DailyJournalProps) {
           </Card>
 
           {/* High Flow Priorities */}
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden border-amber-100">
+            <CardHeader className="bg-gradient-to-br from-amber-50 to-yellow-50">
               <CardTitle className="flex items-center gap-2">
                 <Zap className="h-5 w-5 text-yellow-500" />
                 3 High Flow Priorities
@@ -340,8 +340,8 @@ export function DailyJournal({ userId }: DailyJournalProps) {
           </Card>
 
           {/* Script the Day */}
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden border-purple-100">
+            <CardHeader className="bg-gradient-to-br from-purple-50 to-violet-50">
               <CardTitle className="flex items-center gap-2">
                 <Mic className="h-5 w-5 text-purple-500" />
                 Script Your Day
@@ -375,8 +375,8 @@ export function DailyJournal({ userId }: DailyJournalProps) {
         </TabsContent>
 
         <TabsContent value="evening" className="space-y-6 mt-6">
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden border-indigo-100">
+            <CardHeader className="bg-gradient-to-br from-indigo-50 to-slate-100">
               <CardTitle className="flex items-center gap-2">
                 <Moon className="h-5 w-5 text-indigo-500" />
                 Daily Reflection
@@ -411,7 +411,7 @@ export function DailyJournal({ userId }: DailyJournalProps) {
       </Tabs>
 
       {/* Progress Summary */}
-      <Card>
+      <Card className="bg-gradient-to-br from-gray-50 to-slate-100 border-gray-200">
         <CardContent className="pt-6">
           <div className="text-center">
             <div className="flex justify-center gap-4">

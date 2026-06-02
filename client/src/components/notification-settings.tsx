@@ -164,8 +164,8 @@ export function NotificationSettings({ userId }: NotificationSettingsProps) {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
+      <Card className="overflow-hidden border-sky-100">
+        <CardHeader className="bg-gradient-to-br from-sky-50 to-blue-50">
           <CardTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
             Practice Reminders
@@ -297,8 +297,8 @@ export function NotificationSettings({ userId }: NotificationSettingsProps) {
       </Card>
 
       {/* Quick Actions */}
-      <Card>
-        <CardHeader>
+      <Card className="overflow-hidden border-slate-100">
+        <CardHeader className="bg-gradient-to-br from-slate-50 to-gray-100">
           <CardTitle>Quick Actions</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">

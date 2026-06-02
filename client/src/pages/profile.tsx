@@ -84,7 +84,7 @@ export default function Profile() {
       <StatusBar />
       
       {/* Header */}
-      <header className="px-6 py-4 bg-white border-b border-gray-100">
+      <header className="px-6 py-4 bg-gradient-to-r from-blue-50 via-indigo-50 to-violet-50 border-b border-indigo-100">
         <div className="flex items-center space-x-4">
           <Link href="/">
             <Button variant="ghost" size="sm" className="p-2">
@@ -101,7 +101,7 @@ export default function Profile() {
       <main className="px-6 py-6 pb-24">
         
         {/* Profile Header */}
-        <Card className="mb-6">
+        <Card className="mb-6 overflow-hidden border-indigo-100 bg-gradient-to-br from-blue-50 via-indigo-50 to-violet-50">
           <CardContent className="pt-6">
             <div className="flex items-start space-x-4">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
@@ -186,8 +186,8 @@ export default function Profile() {
 
           <TabsContent value="progress" className="space-y-6 mt-6">
             {/* Progress Stats */}
-            <Card>
-              <CardHeader>
+            <Card className="overflow-hidden border-emerald-100">
+              <CardHeader className="bg-gradient-to-br from-emerald-50 to-teal-50">
                 <CardTitle className="flex items-center space-x-2">
                   <Award className="h-5 w-5 text-success" />
                   <span>Your Progress</span>
@@ -226,8 +226,8 @@ export default function Profile() {
 
           <TabsContent value="settings" className="space-y-6 mt-6">
             {/* Course Format Settings */}
-            <Card>
-              <CardHeader>
+            <Card className="overflow-hidden border-amber-100">
+              <CardHeader className="bg-gradient-to-br from-amber-50 to-orange-50">
                 <CardTitle className="flex items-center gap-2">
                   <CalendarIcon className="h-5 w-5" />
                   Course Format

@@ -14,7 +14,7 @@ export default function Journal() {
       <StatusBar />
       
       {/* Header */}
-      <header className="px-6 py-4 bg-white border-b border-gray-100">
+      <header className="px-6 py-4 bg-gradient-to-r from-amber-50 via-rose-50 to-purple-50 border-b border-rose-100">
         <div className="flex items-center space-x-4">
           <Link href="/">
             <Button variant="ghost" size="sm" className="p-2">
