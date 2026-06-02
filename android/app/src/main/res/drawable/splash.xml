@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- CTOS blue gradient background colour (matches iOS splash) -->
+    <!-- Sky-blue gradient matching the CTOS emblem background (top → bottom) -->
     <item>
         <shape android:shape="rectangle">
             <gradient
                 android:angle="270"
-                android:startColor="#4a90d9"
-                android:endColor="#b8d4e8"
+                android:startColor="#1968cc"
+                android:centerColor="#5ba3d9"
+                android:endColor="#c0d4ec"
                 android:type="linear" />
         </shape>
     </item>
-    <!-- Centred emblem, not stretched -->
+    <!-- CTOS emblem centred at native proportions — not stretched -->
     <item>
         <bitmap
             android:src="@drawable/splash_icon"
