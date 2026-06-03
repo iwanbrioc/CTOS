@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Coming to Our Senses</string>
     <string name="title_activity_main">Coming to Our Senses</string>
-    <string name="package_name">com.iwanbrioc.mindfulcompanion.app</string>
-    <string name="custom_url_scheme">com.iwanbrioc.mindfulcompanion.app</string>
+    <string name="package_name">com.ctos.app</string>
+    <string name="custom_url_scheme">com.ctos.app</string>
 </resources>
