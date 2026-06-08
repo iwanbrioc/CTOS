@@ -1,4 +1,4 @@
-package com.iwanbrioc.mindfulcompanion.app;
+package com.ctos.app;
 
 import com.getcapacitor.BridgeActivity;
 
