@@ -1,0 +1,22 @@
+platform :ios, '14.0'
+use_frameworks!
+
+install! 'cocoapods', :disable_input_output_paths => true
+
+target 'App' do
+  # Capacitor Pods from CocoaPods repository
+  pod 'Capacitor', '~> 7.0'
+  pod 'CapacitorCordova', '~> 7.0'
+  pod 'CapacitorDevice', '~> 7.0'
+  pod 'CapacitorFilesystem', '~> 7.0'
+  pod 'CapacitorLocalNotifications', '~> 7.0'
+  pod 'CapacitorSplashScreen', '~> 7.0'
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+    end
+  end
+end

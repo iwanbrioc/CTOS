@@ -1,0 +1,23 @@
+{
+	"appId": "com.iwanbrioc.mindfulcompanion.app",
+	"appName": "CTOS",
+	"webDir": "dist/public",
+	"ios": {
+		"contentInset": "never",
+		"backgroundColor": "#f8f9fa"
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchAutoHide": true,
+			"launchShowDuration": 2000,
+			"backgroundColor": "#f8f9fa",
+			"androidSplashResourceName": "splash",
+			"showSpinner": false
+		},
+		"LocalNotifications": {
+			"smallIcon": "ic_stat_icon_config_sample",
+			"iconColor": "#488AFF",
+			"sound": "beep.wav"
+		}
+	}
+}

@@ -1,0 +1,41 @@
+PODS:
+  - Capacitor (7.4.4):
+    - CapacitorCordova
+  - CapacitorCordova (7.4.4)
+  - CapacitorDevice (7.0.0):
+    - Capacitor
+  - CapacitorFilesystem (7.0.0):
+    - Capacitor
+  - CapacitorLocalNotifications (7.0.0):
+    - Capacitor
+  - CapacitorSplashScreen (7.0.0):
+    - Capacitor
+
+DEPENDENCIES:
+  - Capacitor (~> 7.0)
+  - CapacitorCordova (~> 7.0)
+  - CapacitorDevice (~> 7.0)
+  - CapacitorFilesystem (~> 7.0)
+  - CapacitorLocalNotifications (~> 7.0)
+  - CapacitorSplashScreen (~> 7.0)
+
+SPEC REPOS:
+  trunk:
+    - Capacitor
+    - CapacitorCordova
+    - CapacitorDevice
+    - CapacitorFilesystem
+    - CapacitorLocalNotifications
+    - CapacitorSplashScreen
+
+SPEC CHECKSUMS:
+  Capacitor: 1297d964bb934303110b453759c5c13f3130dfb0
+  CapacitorCordova: 1a2fefa999c426f71c4bb5cd7a787ffc6fd4ec38
+  CapacitorDevice: 62066b65e148a133df7b8c5bf972ba835b329748
+  CapacitorFilesystem: 2881ad012b5c8d0ffbfed1216aadfc2cca16d5b5
+  CapacitorLocalNotifications: 1270d26b56181ce081ccfab078b888c2f43d0fd0
+  CapacitorSplashScreen: f4e58cc02aafd91c7cbaf32a3d1b44d02a115125
+
+PODFILE CHECKSUM: 7e107ad36a4e67448c2068468f6da3465fd5cf47
+
+COCOAPODS: 1.16.2
