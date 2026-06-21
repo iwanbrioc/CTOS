@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">Coming to Our Senses</string>
-    <string name="title_activity_main">Coming to Our Senses</string>
-    <string name="package_name">com.ctos.app</string>
-    <string name="custom_url_scheme">com.ctos.app</string>
-</resources>
