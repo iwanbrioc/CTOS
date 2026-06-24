@@ -292,6 +292,7 @@ var init_session_data = __esm({
         id: 1,
         week: 1,
         title: "Dropping the Balloon",
+        practiceName: "Grounding",
         description: "Learning to let go and recognize when we're in 'keepy-uppy' mode.",
         longDescription: [
           "Most of us spend our waking hours playing keepy-uppy. We are juggling tasks and roles; keeping up appearances; maintaining relationships; meeting people's expectations of us, and those we have of ourselves. Mindfulness can sometimes feel like just another bothersome task.",
@@ -312,6 +313,7 @@ var init_session_data = __esm({
         id: 2,
         week: 2,
         title: "Journey to Now",
+        practiceName: "Seven Stations of the Spine",
         description: "The body as a reliable anchor to the present moment.",
         longDescription: [
           "Mindfulness is the practice of paying attention to the present moment without judgment. Unlike the mind, the body has no choice but to be present, making it a reliable anchor. As the vessel for life, it carries breath, energy, and vitality\u2014but it also holds the imprint of our past.",
@@ -331,6 +333,7 @@ var init_session_data = __esm({
         id: 3,
         week: 3,
         title: "Coming to Our Senses",
+        practiceName: "The Sense of Being Alive",
         description: "What if thoughts and emotions were also considered senses?",
         longDescription: [
           "In our previous session, we explored our life experiences and physical bodies. This time, we delved into the realm of our senses: touch, taste, smell, sight, hearing, thoughts, and emotions.",
@@ -350,6 +353,7 @@ var init_session_data = __esm({
         id: 4,
         week: 4,
         title: "Body, Movement, Mind",
+        practiceName: "Mind in Body, Body in Movement, Movement in Mind",
         description: "Meditation doesn't have to mean stillness.",
         longDescription: [
           "Meditation is to mindfulness what a workout is to fitness. The repeated practice of bringing the mind back to a focal point actively rewires the brain, strengthening metacognition\u2014our ability to notice the impulses of avoidance and craving that drive much of our behavior and thought processes.",
@@ -369,6 +373,7 @@ var init_session_data = __esm({
         id: 5,
         week: 5,
         title: "What You Really Want",
+        practiceName: "What if All There is is This?",
         description: "Exploring what happens when we fully accept the present moment.",
         longDescription: [
           "Paying attention to the body reveals patterns of sensation that signal where we hold stress, just as observing our thoughts and emotions helps us recognize and release negative patterns before they shape our mood or actions.",
@@ -389,6 +394,7 @@ var init_session_data = __esm({
         id: 6,
         week: 6,
         title: "Leaning into Difficulty",
+        practiceName: "Turning Towards the Difficult",
         description: "Understanding emotions as signals and finding the gold in our wounds.",
         longDescription: [
           "Emotions are probably one of the most misunderstood elements of our human experience. Animals have five basic emotions that are triggered in reaction to 'in the moment' environmental or physiological stimuli: Anger (Get out of my way), Sadness (I need comforting), Joy (This feels good), Disgust (Get that away from me), Fear (I need help).",
@@ -407,7 +413,8 @@ var init_session_data = __esm({
       {
         id: 7,
         week: 7,
-        title: "Finding Your Flow",
+        title: "The Perfect Distance",
+        practiceName: "The Four Pillars",
         description: "Every moment is a creative challenge.",
         longDescription: [
           "This week, we challenged you to see that every moment is a creative challenge. As we like to say, CoArts is a creative movement towards awareness of the creative movement of awareness! If life is theatre and we're not writing the script\u2014who is?",
@@ -428,6 +435,7 @@ var init_session_data = __esm({
         id: 8,
         week: 8,
         title: "Falling Awake",
+        practiceName: "Great Smile Practice",
         description: "Embracing the paradox of awakening and falling in love with what is.",
         longDescription: [
           "In our final session together, we embraced one last creative challenge\u2014writing and performing a poem in front of the group. For many, this felt like standing on the edge of a precipice and being asked to jump. Yet, over the past eight weeks, the trust and care within the group became a safety net, holding each person with unconditional positive regard.",
